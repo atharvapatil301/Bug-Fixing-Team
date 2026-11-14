@@ -12,7 +12,9 @@ from . import config
 from .repo import issue_text, repo_files
 from .sandbox import open_sandbox, read_sandbox_file, upload_files
 
-## i added a line "Only look for files under {workdir}: always pass path="{workdir}" to glob, grep and ls. Never search /." because on running cell 23 in Notebook 2, the glob tool of the verifer deepagent searched "/" instead of wokrdir
+## i added a line "Only look for files under {workdir}: always pass path="{workdir}" to glob, grep and ls. Never search /." 
+# because on running cell 23 in Notebook 2, the glob tool of the verifer deepagent searched "/" instead of wokrdir
+# also added this line.."if the issue's suggestion contradicts the docstring, follow the docstring"
 VERIFIER_PROMPT = """You check a proposed fix for one issue in huskyutils, a small Python library.
 Another agent wrote the fix. You are not shown the change, so that your tests come from the issue
 and the docstring and not from the fix. Your files are under {workdir}:
@@ -29,8 +31,9 @@ Run Python with execute. The tests use unittest. To run them, cd into one of the
 2. Write tests/test_issue.py in both folders. It checks what the issue and the docstring say the
    function should do, including every example in the docstring. Write it from the issue and the
    docstring, not from the fix. Test only inputs the docstring allows: if it says a value is at
-   least 1, do not test 0.
-3. Run all the tests in both folders. Your test should fail in original/, which shows it reproduces
+   least 1, do not test 0. 
+3. If the issue's suggestion contradicts the docstring, follow the docstring
+4. Run all the tests in both folders. Your test should fail in original/, which shows it reproduces
    the issue; that failure is what you want, not a reason to reject the fix. In fixed/, every test
    should pass, yours and the ones that were already there.
 
@@ -71,6 +74,38 @@ def decision(messages):
     return ("none","")
 
 
+## My own fixes to the verifier that I have mentionned in the readme of the submission repo
+import ast
+
+def docstring_examples(source):
+    """Every `f(...) == expected` line in the module's docstrings."""
+    out = []
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+            for line in (ast.get_docstring(node) or "").splitlines():
+                line = line.strip()
+                try:
+                    expr = ast.parse(line, mode="eval").body
+                except SyntaxError:
+                    continue
+                if (isinstance(expr, ast.Compare) and isinstance(expr.ops[0], ast.Eq)
+                        and isinstance(expr.left, ast.Call)):
+                    out.append(line)
+    return out
+
+
+def check_script(module, examples):
+    """A script that prints every docstring example the code fails, with what it got."""
+    lines = [f"from {module} import *", "bad = []"]
+    for ex in examples:
+        call = ex.split("==")[0].strip()
+        lines.append(f"try:\n    got = {call}\n    ok = ({ex})\nexcept Exception as e:\n"
+                     f"    got, ok = repr(e), False\n"
+                     f"if not ok: bad.append({ex!r} + '  # got ' + repr(got))")
+    lines.append("print('\\n'.join(bad))")
+    return "\n".join(lines)
+
+
 def verify(issue, fix):
     """Run the verifier on one fix, in a new sandbox. fix is the fixer's transfer_to_verifier arguments.
 
@@ -96,8 +131,19 @@ def verify(issue, fix):
             out = verifier_agent.invoke({"messages": [HumanMessage(content=request)]},
                                         {"recursion_limit": 80})
             verdict, message = decision(out["messages"])
-        except GraphRecursionError:
-            verdict, message = "none", "The verifier ran out of steps before it accepted or rejected the fix."
+
+            # Gate: an accept only stands if every docstring example holds in fixed/.
+            if verdict == "accept" and fix["path"].endswith(".py"):
+                examples = docstring_examples(files[fix["path"]])   # from ORIGINAL, so the fixer can't edit them away
+                if examples:
+                    module = fix["path"][:-3].replace("/", ".")
+                    upload_files(sandbox, {"check_docstring.py": check_script(module, examples)}, f"{workdir}/fixed")
+                    failed = sandbox.execute(f"cd {workdir}/fixed && python check_docstring.py 2>&1").output.strip()
+                    if failed:
+                        verdict, message = "reject", ("Your fix breaks examples in the docstring, which is the "
+                                                    "specification:\n" + failed)
+            except GraphRecursionError:
+                verdict, message = "none", "The verifier ran out of steps before it accepted or rejected the fix."
 
         test = read_sandbox_file(sandbox, f"{workdir}/fixed/tests/test_issue.py")
 
