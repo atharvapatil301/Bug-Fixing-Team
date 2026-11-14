@@ -142,7 +142,7 @@ def verify(issue, fix):
                     if failed:
                         verdict, message = "reject", ("Your fix breaks examples in the docstring, which is the "
                                                     "specification:\n" + failed)
-            except GraphRecursionError:
+        except GraphRecursionError:
                 verdict, message = "none", "The verifier ran out of steps before it accepted or rejected the fix."
 
         test = read_sandbox_file(sandbox, f"{workdir}/fixed/tests/test_issue.py")
