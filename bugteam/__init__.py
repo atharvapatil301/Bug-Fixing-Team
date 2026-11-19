@@ -1,1 +1,1 @@
-"""DADA3: a bug-fixing team for the huskyutils repository."""
+"""A bug-fixing agent team for the huskyutils repository."""

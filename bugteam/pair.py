@@ -1,4 +1,4 @@
-"""Notebook 01: the fixer and the verifier, handing one issue back and forth.
+"""The fixer and the verifier, handing one issue back and forth.
 
     START -> fixer --transfer_to_verifier--> verifier --accept_fix--> END
                ^                                |
@@ -54,16 +54,13 @@ def verifier_node(state: PairState) -> dict:
 
 def after_fixer(state: PairState) -> Literal["verifier", "__end__"]:
     """To the verifier if the fixer handed over a fix this time, otherwise the pair is done."""
-    # TODO 1.5
-    # your code here
     if state["status"]=="no_fix":
         return END
     return "verifier"
 
 
-def after_verifier(state: PairState) -> Literal["veriifer", "__end__"]:
+def after_verifier(state: PairState) -> Literal["fixer", "__end__"]:
     """Done if the fix was verified or the rounds are used up, otherwise back to the fixer."""
-    # TODO 1.5
     if state["status"]=="verified" or state["rounds"] == config.MAX_ROUNDS:
         return END
     return "fixer"

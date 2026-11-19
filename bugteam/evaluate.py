@@ -1,4 +1,4 @@
-"""Scoring a run against the held-out tests. Given.
+"""Scoring a run against the held-out tests.
 
 The team never sees eval/. The hidden tests run in a sandbox, like everything else that runs code
 an agent wrote.

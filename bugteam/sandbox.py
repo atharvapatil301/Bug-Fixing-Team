@@ -1,4 +1,4 @@
-"""Sandboxes for running code, from W09b.2. Given.
+"""Sandboxes for running code: Daytona in production, Docker locally.
 
     with open_sandbox() as (sandbox, workdir):
         upload_files(sandbox, repo_files(), f"{workdir}/original")
@@ -14,7 +14,7 @@ import certifi
 
 from . import config
 
-os.environ.setdefault("SSL_CERT_FILE", certifi.where())   # python.org Python on a Mac, as in W09b.2
+os.environ.setdefault("SSL_CERT_FILE", certifi.where())   # python.org Python on a Mac lacks system certs
 
 
 @contextmanager
@@ -53,7 +53,7 @@ def read_sandbox_file(sandbox, path):
 
 
 def save_files(sandbox, folder, local_dir):
-    """Copy the files under folder in the sandbox to local_dir, as in W09b.2. The paths come from the
+    """Copy the files under folder in the sandbox to local_dir. The paths come from the
     sandbox, so each one is checked to stay inside local_dir before it is written."""
     local_dir = Path(local_dir).resolve()
     paths = [m["path"] for m in sandbox.glob("**/*", path=folder).matches]

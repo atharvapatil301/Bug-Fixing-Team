@@ -1,7 +1,6 @@
 """Settings every other module reads.
 
-Nothing here is a TODO. If you change a value, write down why in notebook 03: the team and the
-baseline are only comparable when they ran under the same settings.
+The team and the baseline are only comparable when they run under the same settings.
 """
 import os
 
@@ -23,7 +22,7 @@ MAX_ROUNDS = 3
 MAX_PARALLEL = 2
 
 # Where the verifier runs code: "daytona" (needs DAYTONA_API_KEY) or "docker" (needs Docker
-# running, and the python:3.12-slim image pulled). Both are the sandboxes from W09b.2.
+# running, and the python:3.12-slim image pulled).
 SANDBOX = os.getenv("SANDBOX", "daytona")
 
 # The chat model plays every part. Mind the free-tier limits: 15 requests a minute and 500 a day.

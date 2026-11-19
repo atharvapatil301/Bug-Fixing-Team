@@ -1,12 +1,12 @@
-"""The DADA3 app: the bug-fixing team, working on issues while you watch. Given.
+"""The app: the bug-fixing team, working on issues while you watch.
 
 Two tabs.
 
 - One issue: pick an open issue, or write one of your own, and press Fix.
 - All issues: run the team on every open issue at once (or the ones you keep picked). Each bug gets
   its own pair, and the pairs run at the same time, config.MAX_PARALLEL at once. This is the
-  fan-out from notebook 02: the messages of different issues interleave, and each says which issue
-  it is about.
+  team's fan-out: the messages of different issues interleave, and each says which issue it is
+  about.
 
 Both show, in order: triage's labels and reasoning; the fixers and the verifiers handing fixes back
 and forth, as a chat, while it happens; and the maintainer's report when the run finishes. The team
@@ -143,8 +143,8 @@ def outputs(label):
 
 def interface():
     choices = list(names())
-    with gr.Blocks(title="DADA3 - Huskyutils Bug-fixing Team") as demo:
-        gr.Markdown("# DADA3 - Huskyutils Bug-fixing Team\nTriage decides whether an issue is a bug. Each bug "
+    with gr.Blocks(title="Bug-Fixing Agent Team") as demo:
+        gr.Markdown("# Bug-Fixing Agent Team\nTriage decides whether an issue is a bug. Each bug "
                     "gets a pair: the fixer writes a fix, and the verifier, a deep agent with a sandbox that is "
                     "not shown the fix, tests it and accepts it or sends it back."
                     f"\n\nChat model: `{config.model_name()}`. Sandbox: `{config.SANDBOX}`.")

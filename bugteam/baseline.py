@@ -1,4 +1,4 @@
-"""The baseline: one deep agent does the whole job in one sandbox. Given.
+"""The baseline: one deep agent does the whole job in one sandbox.
 
 It has the same model, the same sandbox, and the same issues as the team. The difference is that
 nobody but the agent itself checks its fixes.
@@ -72,8 +72,8 @@ def run(issues, callbacks=None, out_dir=None):
                     changed[path] = now
         if out_dir:
             save_files(sandbox, f"{workdir}/repo", os.path.join(out_dir, "repo"))
-    # The labels and claims come from the report, read by one structured-output call, the way
-    # file_ticket read the conversation in W03b. The team's triage is structured output too.
+    # The labels and claims come from the report, read by one structured-output call. The team's
+    # triage is structured output too.
     written = report or final
     decided = retry(model.with_structured_output(Decisions).invoke, READ_PROMPT.format(report=written),
                     **({"config": {"callbacks": callbacks}} if callbacks else {})) if written else None

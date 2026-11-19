@@ -1,11 +1,11 @@
-"""Notebook 02: the whole team.
+"""The whole team.
 
     START -> triage --one Send per bug--> fix   fix   fix ...   (a fixer-verifier pair each, in parallel)
                |                            |
                +--no bugs-------------------+--> report -> END
 
-Triage makes one structured-output call per issue, as the reviewer did in W07b. The fan-out is the
-one from W07a.2. Each fix is the pair from notebook 01.
+Triage makes one structured-output call per issue. The fan-out sends each bug to its own
+fixer-verifier pair (pair.py), and the pairs run in parallel.
 """
 import operator
 from typing import Annotated, Literal, TypedDict
@@ -61,8 +61,6 @@ class TeamState(TypedDict):
 
 def triage(state: TeamState) -> dict:
     """Label every issue, one structured-output call per issue."""
-    # TODO 2.1
-    # your code here
     triage_agent = config.chat().with_structured_output(Label)
 
     code = "\n\n".join(
@@ -84,8 +82,6 @@ def triage(state: TeamState) -> dict:
 
 def fan_out(state: TeamState):
     """One Send per issue triage labeled a bug, or straight to the report if there are none."""
-    # TODO 2.2
-    # your code here
 
     bugs = [i for i in state["issues"] if state["labels"][i["number"]] == "bug"]
 
@@ -126,8 +122,6 @@ def facts(state: TeamState) -> list[str]:
 
 def summary(state: TeamState) -> str:
     """The paragraph at the top of the report, written by the model from the facts only."""
-    # TODO 2.3
-    # your code here
     facts_input = "\n\n".join(facts(state))
     prompt = REPORT_PROMPT.format(facts=facts_input)
     reply = retry(config.chat().invoke, prompt)
@@ -162,8 +156,6 @@ def report(state: TeamState) -> dict:
 
 
 def build_graph():
-    # TODO 2.4
-    # your code here
     debugger = StateGraph(TeamState)
     debugger.add_node("triage", triage)
     debugger.add_node("fix", fix)

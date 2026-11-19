@@ -1,8 +1,6 @@
-"""The deployable app: your bug-fixing team behind bugteam_ui.py.
+"""The deployable app: the bug-fixing team behind bugteam_ui.py.
 
     python app.py            # http://localhost:7860
-
-Nothing to implement here; it works once notebooks 01 and 02 are done.
 """
 import os
 

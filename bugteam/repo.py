@@ -1,4 +1,4 @@
-"""The huskyutils repository and its open issues. Given."""
+"""The huskyutils repository and its open issues."""
 import difflib
 import json
 import os

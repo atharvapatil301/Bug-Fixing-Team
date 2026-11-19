@@ -1,8 +1,8 @@
-"""Notebook 01: the fixer. It reads the code and writes a fix, but it cannot run anything.
+"""The fixer. It reads the code and writes a fix, but it cannot run anything.
 
     START -> assistant -> tools -> assistant -> ... -> transfer_to_verifier -> END
 
-The W04b loop, with the rule from W08a: once the handoff tool has run, the agent stops, and the graph
+A model-and-tools loop with one rule: once the handoff tool has run, the agent stops, and the graph
 around it decides who works next.
 """
 from langchain.messages import SystemMessage
@@ -34,8 +34,6 @@ def list_files() -> str:
 @tool
 def read_file(path: str) -> str:
     """Read one file of the repository, for example huskyutils/text.py."""
-    # TODO 1.1
-    # your code here
     result = repo_files()
     if path in result.keys():
         return result[path]
@@ -48,7 +46,6 @@ def read_file(path: str) -> str:
 def transfer_to_verifier(path: str, new_code: str, note: str) -> str:
     """Hand your fix to the verifier. path: the file you changed. new_code: the complete new content of
     that file. note: what was wrong and what you changed, in one or two sentences."""
-    # your code here
     return "The verifier has your fix."
     
 
@@ -58,7 +55,6 @@ TOOLS = [list_files, read_file, transfer_to_verifier]
 
 def after_tools(state: MessagesState) ->  Literal["assistant", "__end__"]:
     """After the tools run: stop if the fix was handed over, otherwise back to the model."""
-    # TODO 1.2
     if state["messages"][-1].name == "transfer_to_verifier":
         return END
     return "assistant"
